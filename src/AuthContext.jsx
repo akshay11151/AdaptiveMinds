@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   // Function to logout
   const logout = async () => {
@@ -23,30 +24,53 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
     setCurrentUser(null);
     setUserRole(null);
+    setIsDisabled(false);
   };
 
   // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
-      
       if (user) {
         try {
           // Check if it's the admin email
           if (user.email.toLowerCase() === 'admin@lms.com') {
+            setCurrentUser(user);
             setUserRole('admin');
+            setIsDisabled(false);
           } else {
             // Get user data from Firestore
             const userDoc = await getDoc(doc(db, "users", user.uid));
             
             if (userDoc.exists()) {
               const userData = userDoc.data();
-              setUserRole(userData.role);
+              
+              // Check if user is disabled
+              if (userData.disabled === true) {
+                // If user is disabled, sign them out
+                await signOut(auth);
+                setCurrentUser(null);
+                setUserRole(null);
+                setIsDisabled(true);
+                localStorage.removeItem('user');
+              } else {
+                // User is not disabled, set their data
+                setCurrentUser(user);
+                setUserRole(userData.role);
+                setIsDisabled(false);
+              }
+            } else {
+              setCurrentUser(user);
+              setIsDisabled(false);
             }
           }
         } catch (error) {
           console.error("Error fetching user data:", error);
+          setCurrentUser(user);
         }
+      } else {
+        // No user is signed in
+        setCurrentUser(null);
+        setUserRole(null);
       }
       
       setLoading(false);
@@ -71,7 +95,8 @@ export const AuthProvider = ({ children }) => {
     isStudent: userRole === 'user',
     isInstructor: userRole === 'instructor',
     isAdmin: userRole === 'admin',
-    isAuthenticated: !!currentUser
+    isAuthenticated: !!currentUser,
+    isDisabled
   };
 
   return (

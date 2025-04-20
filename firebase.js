@@ -7,14 +7,15 @@ import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyB0tzC0RCuwXq9JuDqBxI6A1ezqjsXjDvk",
-  authDomain: "lms-se-fe760.firebaseapp.com",
-  projectId: "lms-se-fe760",
-  storageBucket: "lms-se-fe760.appspot.com", // Fixed the storage bucket URL
-  messagingSenderId: "918042822312",
-  appId: "1:918042822312:web:3df3d647c7c275c6bee49d",
-  measurementId: "G-Q0XQNWVX65"
+  apiKey: "AIzaSyC8h-UZsBimuDoGvFHj5VoXuLdywODlWpw",
+  authDomain: "learninghub-c553d.firebaseapp.com",
+  projectId: "learninghub-c553d",
+  storageBucket: "learninghub-c553d.firebasestorage.app",
+  messagingSenderId: "16563526630",
+  appId: "1:16563526630:web:2c28f8657683b704591427",
+  measurementId: "G-F1L739VKYL"
 };
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

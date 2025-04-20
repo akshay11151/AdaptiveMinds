@@ -4,10 +4,15 @@ import { useAuth } from './AuthContext';
 
 // Component to protect routes that require authentication
 export const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, isDisabled } = useAuth();
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  // If user is disabled, redirect to login with an error state
+  if (isDisabled) {
+    return <Navigate to="/" state={{ error: 'Your account has been disabled. Please contact an administrator.' }} />;
   }
 
   if (!isAuthenticated) {
@@ -19,10 +24,15 @@ export const ProtectedRoute = ({ children }) => {
 
 // Component to protect instructor-only routes
 export const InstructorRoute = ({ children }) => {
-  const { isAuthenticated, isInstructor, loading } = useAuth();
+  const { isAuthenticated, isInstructor, loading, isDisabled } = useAuth();
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  // If user is disabled, redirect to login with an error state
+  if (isDisabled) {
+    return <Navigate to="/" state={{ error: 'Your account has been disabled. Please contact an administrator.' }} />;
   }
 
   if (!isAuthenticated) {
@@ -38,10 +48,15 @@ export const InstructorRoute = ({ children }) => {
 
 // Component to protect admin-only routes
 export const AdminRoute = ({ children }) => {
-  const { isAuthenticated, isAdmin, loading } = useAuth();
+  const { isAuthenticated, isAdmin, loading, isDisabled } = useAuth();
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  // Admin should never be disabled, but include check for consistency
+  if (isDisabled) {
+    return <Navigate to="/" state={{ error: 'Your account has been disabled. Please contact an administrator.' }} />;
   }
 
   if (!isAuthenticated) {
@@ -57,15 +72,22 @@ export const AdminRoute = ({ children }) => {
 
 // Component to redirect authenticated users from login/register pages
 export const PublicRoute = ({ children }) => {
-  const { isAuthenticated, userRole, loading } = useAuth();
+  const { isAuthenticated, userRole, loading, isDisabled } = useAuth();
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
+  // Don't redirect if user is disabled - they'll see the login page with error message
+  if (isDisabled) {
+    return children ? children : <Outlet />;
+  }
+
   if (isAuthenticated) {
     if (userRole === 'instructor') {
       return <Navigate to="/instructor/home" />;
+    } else if (userRole === 'admin') {
+      return <Navigate to="/admin/dashboard" />;
     } else {
       return <Navigate to="/home" />;
     }

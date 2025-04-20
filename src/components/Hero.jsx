@@ -37,27 +37,27 @@ const Hero = () => {
           <div className="flex flex-wrap mt-6 w-full justify-between">
             <div className="mr-8 mb-4">
               <p className="text-2xl font-bold text-gray-800">10K+</p>
-              <p className="text-sm text-gray-600">Online Courses</p>
+              <p className="text-xs text-gray-600">Online Courses</p>
             </div>
             <div className="mr-8 mb-4">
               <p className="text-2xl font-bold text-gray-800">200+</p>
-              <p className="text-sm text-gray-600">Expert Instructors</p>
+              <p className="text-xs text-gray-600">Expert Instructors</p>
             </div>
             <div className="mb-4">
               <p className="text-2xl font-bold text-gray-800">50K+</p>
-              <p className="text-sm text-gray-600">Active Students</p>
+              <p className="text-xs text-gray-600">Active Students</p>
             </div>
           </div>
           
-          {/* CTA Buttons */}
+          {/* CTA Buttons - All navigating to /courses */}
           <div className="flex flex-wrap gap-4 mt-2">
             <Link to="/courses" className="bg-gradient-to-r from-orange-400 to-orange-500 text-white px-6 py-3 rounded-xl font-medium hover:from-orange-500 hover:to-orange-600 transition-colors shadow-md">
               Explore Courses
             </Link>
-            <button className="flex items-center bg-white px-6 py-3 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-md">
+            <Link to="/courses" className="flex items-center bg-white px-6 py-3 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-md">
               <Play className="h-5 w-5 text-orange-500 mr-2" />
               Watch Demo
-            </button>
+            </Link>
           </div>
         </div>
         

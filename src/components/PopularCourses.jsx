@@ -1,14 +1,16 @@
-import React from 'react';
-import { Star, Clock, Users, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Star, Clock, Users, ChevronRight } from 'lucide-react';
+import { collection, query, orderBy, limit, getDocs, where } from 'firebase/firestore';
+import { db } from '../../firebase';
 
-const CourseCard = ({ image, category, title, rating, students, duration, price, instructor }) => {
+const CourseCard = ({ image, category, title, rating, students, duration, price, instructor, id }) => {
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100">
       {/* Course Image */}
       <div className="relative">
         <img 
-          src={image} 
+          src={image || "https://img.freepik.com/free-vector/website-development-banner_33099-1687.jpg?semt=ais_hybrid"} 
           alt={title} 
           className="w-full h-48 object-cover"
         />
@@ -47,8 +49,8 @@ const CourseCard = ({ image, category, title, rating, students, duration, price,
           <div className="font-bold text-lg text-orange-500">
             ${price}
           </div>
-          <Link to={`/courses/${title.toLowerCase().replace(/\s+/g, '-')}`} className="flex items-center text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">
-            View Details
+          <Link to="/courses" className="flex items-center text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">
+            View Course
             <ChevronRight className="h-4 w-4 ml-1" />
           </Link>
         </div>
@@ -58,8 +60,61 @@ const CourseCard = ({ image, category, title, rating, students, duration, price,
 };
 
 const PopularCourses = () => {
-  // Sample courses data (in a real app, this would come from an API)
-  const courses = [
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        
+        // Create query to get published courses, sorted by enrollment count
+        const coursesQuery = query(
+          collection(db, 'courses'),
+          where('status', '==', 'published'),
+          orderBy('enrolledStudents', 'desc'),
+          limit(8)
+        );
+        
+        const querySnapshot = await getDocs(coursesQuery);
+        
+        const coursesData = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            title: data.title || 'Unnamed Course',
+            description: data.description || '',
+            category: data.category || 'General',
+            price: data.price ? data.price.toFixed(2) : '0.00',
+            rating: data.rating ? data.rating.toFixed(1) : '0.0',
+            students: data.enrolledStudents ? `${data.enrolledStudents}` : '0',
+            image: data.imageUrl || null,
+            instructor: data.instructorName || 'Unknown Instructor',
+            duration: data.duration || data.sections 
+              ? `${data.sections.reduce((total, section) => total + section.videos.length, 0)} videos` 
+              : 'Self-paced'
+          };
+        });
+        
+        setCourses(coursesData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching courses:', err);
+        setError('Failed to load courses. Please try again.');
+        
+        // Fallback to sample data if Firestore fetch fails
+        setCourses(sampleCourses);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchCourses();
+  }, []);
+
+  // Sample courses data as fallback
+  const sampleCourses = [
     {
       id: 1,
       image: "https://img.freepik.com/free-vector/website-development-banner_33099-1687.jpg?semt=ais_hybrid",
@@ -106,6 +161,39 @@ const PopularCourses = () => {
     }
   ];
 
+  // Loading state
+  if (loading) {
+    return (
+      <section className="py-16">
+        <div className="container mx-auto px-6">
+          <div className="text-center">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-orange-500 border-r-transparent"></div>
+            <p className="mt-4 text-gray-600">Loading courses...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Error state with fallback data
+  if (error && courses.length === 0) {
+    return (
+      <section className="py-16">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-8 text-red-500">
+            <p>{error}</p>
+          </div>
+          {/* Still render sample courses for better UX */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {sampleCourses.map(course => (
+              <CourseCard key={course.id} {...course} />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-16">
       <div className="container mx-auto px-6">
@@ -120,28 +208,12 @@ const PopularCourses = () => {
           </Link>
         </div>
         
-        {/* Courses Grid - First Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          {courses.slice(0, 4).map((course) => (
-            <CourseCard 
-              key={course.id}
-              image={course.image}
-              category={course.category}
-              title={course.title}
-              rating={course.rating}
-              students={course.students}
-              duration={course.duration}
-              price={course.price}
-              instructor={course.instructor}
-            />
-          ))}
-        </div>
-        
-        {/* Courses Grid - Second Row */}
+        {/* Courses Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {courses.slice(4, 8).map((course) => (
+          {courses.slice(0, 8).map(course => (
             <CourseCard 
               key={course.id}
+              id={course.id}
               image={course.image}
               category={course.category}
               title={course.title}

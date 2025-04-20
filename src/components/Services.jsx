@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Video, BookOpen, Clock, Headphones, Users } from 'lucide-react';
 
 const ServicesCard = ({ icon, title, description }) => {
@@ -67,16 +68,16 @@ const Services = () => {
           ))}
         </div>
         
-        {/* CTA Banner */}
+        {/* CTA Banner - Updated to navigate to /courses */}
         <div className="mt-16 bg-gradient-to-r from-orange-400 to-orange-500 rounded-xl p-8 shadow-md">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="text-white mb-6 md:mb-0 text-center md:text-left">
               <h3 className="text-2xl font-bold mb-2">Ready to Start Learning?</h3>
               <p className="text-orange-100">Join thousands of students already learning with us.</p>
             </div>
-            <button className="bg-white text-orange-500 hover:bg-orange-50 transition-colors px-6 py-3 rounded-lg font-medium shadow-md">
+            <Link to="/courses" className="bg-white text-orange-500 hover:bg-orange-50 transition-colors px-6 py-3 rounded-lg font-medium shadow-md">
               Get Started Today
-            </button>
+            </Link>
           </div>
         </div>
       </div>

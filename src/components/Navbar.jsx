@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, LogOut, User } from 'lucide-react';
+import { BookOpen, LogOut, User, ChevronDown } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 
 const Navbar = () => {
@@ -10,6 +10,9 @@ const Navbar = () => {
   
   // Get username from currentUser or fallback to "User"
   const username = currentUser?.displayName || currentUser?.email?.split('@')[0] || "User";
+  
+  // State for dropdown
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   
   // Handle logout
   const handleLogout = async () => {
@@ -43,12 +46,45 @@ const Navbar = () => {
           <Link to="/feedback" className="text-gray-700 hover:text-orange-500 transition-colors font-medium">
             Feedback
           </Link>
+          <Link to="/contact-us" className="text-gray-700 hover:text-orange-500 transition-colors font-medium">
+            Contact Us
+          </Link>
           <Link to="/discussion" className="text-gray-700 hover:text-orange-500 transition-colors font-medium">
             Discussion
           </Link>
           <Link to="/notifications" className="text-gray-700 hover:text-orange-500 transition-colors font-medium">
             Notifications
           </Link>
+          
+          {/* New dropdown for Others */}
+          <div className="relative">
+            <button 
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center text-gray-700 hover:text-orange-500 transition-colors font-medium"
+            >
+              Others
+              <ChevronDown className="ml-1 h-4 w-4" />
+            </button>
+            
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                <Link 
+                  to="/certificates" 
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-100"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Certificates
+                </Link>
+                <Link 
+                  to="/wishlist" 
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-100"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Wishlist
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
         
         {/* User Actions */}
@@ -81,7 +117,7 @@ const Navbar = () => {
           </div>
         )}
         
-        {/* Mobile Menu Button - You would implement toggling mobile menu functionality */}
+        {/* Mobile Menu Button */}
         <button className="md:hidden text-gray-700">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
